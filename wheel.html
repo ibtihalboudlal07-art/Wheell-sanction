@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Roue des sanctions</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+body{
+background:linear-gradient(135deg,#141e30,#243b55);
+font-family:Arial;
+margin:0;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+height:100vh;
+overflow:hidden;
+color:white;
+}
+
+/* 🔥 العنوان الأصلي */
+h1{
+margin-bottom:70px;
+letter-spacing:3px;
+}
+
+/* main layout */
+.main{
+display:flex;
+gap:80px;
+align-items:center;
+justify-content: center;
+}
+
+.left{
+display:flex;
+flex-direction: column;
+align-items:center;
+gap: 20px;
+}
+
+
+
+/* wheel */
+.wheelBox{
+position:relative;
+width:400px;
+height:400px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+/* glow */
+.wheelBox::before{
+content:"";
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:440px;
+height:440px;
+border-radius:50%;
+background:conic-gradient(
+#ff0080,#ff8c00,#ffd700,#00ff6a,#00e5ff,#0066ff,#8a2be2,#ff0080
+);
+animation:spinBorder 6s linear infinite;
+filter:blur(18px);
+z-index:-2;
+}
+
+@keyframes spinBorder{
+from{transform:translate(-50%,-50%) rotate(0deg);}
+to{transform:translate(-50%,-50%) rotate(360deg);}
+}
+
+canvas{
+background:white;
+border-radius:50%;
+box-shadow:0 0 20px rgba(255,255,255,0.6);
+}
+
+/* pointer */
+.pointer{
+position:absolute;
+top:-35px;
+left:50%;
+transform:translateX(-50%);
+font-size:42px;
+color:white;
+}
+
+/* button */
+button{
+margin-top:20px;
+padding:15px 35px;
+font-size:18px;
+border:none;
+border-radius:10px;
+background:linear-gradient(90deg,#ff0080,#7928ca);
+color:white;
+cursor:pointer;
+}
+
+
+.card{
+background:linear-gradient(135deg,#ffffff,#525ff3);
+color:#333;
+padding:25px;
+border-radius:18px;
+width:260px;
+box-shadow:0 15px 40px rgba(0,0,0,0.25);
+text-align:center;
+}
+
+
+.footer-dd102{
+position:fixed;
+bottom:10px;
+right:10px;
+font-size:14px;
+opacity:0.4;
+letter-spacing:2px;
+}
+
+
+.card:hover{
+transform:translateY(-5px);
+transition:0.3s;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>TOURNE LA ROUE</h1>
+
+<div class="main">
+
+  <!-- العجلة + الزر -->
+  <div class="left">
+
+    <div class="wheelBox">
+
+      <div class="pointer">
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+
+      <canvas id="wheel" width="400" height="400"></canvas>
+
+    </div>
+
+    <button onclick="spin()">TOURNER</button>
+
+  </div>
+
+  <!-- الكارت -->
+  <div class="card">
+
+    <h2>Résultat</h2>
+    <p id="num">Numéro : -</p>
+    <p id="rule">Tourne la roue</p>
+
+  </div>
+
+</div>
+
+
+<div class="footer-dd102">
+ développement digital 102
+</div>
+
+<script>
+
+const rules=[
+"Dispense","Langue des signes","Rester debout 15 min",
+"Par terre 10 min","Résumé de la séance","Sortir 10 min en retard",
+"Exposé 30 min","Confisquer téléphone","Pas de pause",
+"Supprimer une application","Prof choisit","Choisir 2 punitions"
+];
+
+const canvas=document.getElementById("wheel");
+const ctx=canvas.getContext("2d");
+
+const slices=12;
+const angle=2*Math.PI/slices;
+
+let rotation=0;
+
+function drawWheel(){
+
+ctx.clearRect(0,0,400,400);
+
+for(let i=0;i<slices;i++){
+
+let start=rotation+i*angle;
+let end=start+angle;
+
+ctx.beginPath();
+ctx.moveTo(200,200);
+ctx.arc(200,200,200,start,end);
+
+ctx.fillStyle=`hsl(${i*30},80%,60%)`;
+ctx.fill();
+
+ctx.save();
+ctx.translate(200,200);
+ctx.rotate(start+angle/2);
+
+ctx.fillStyle="white";
+ctx.font="bold 20px Arial";
+ctx.fillText(i+1,140,5);
+
+ctx.restore();
+
+}
+
+}
+
+drawWheel();
+
+function spin(){
+
+let spinAngle=Math.random()*3000+2000;
+let duration=4000;
+let start=null;
+
+function animate(t){
+
+if(!start) start=t;
+
+let progress=t-start;
+
+rotation=spinAngle*progress/duration*Math.PI/180;
+
+drawWheel();
+
+if(progress<duration){
+requestAnimationFrame(animate);
+}else{
+
+let degrees=rotation*180/Math.PI+90;
+let arcd=360/slices;
+let index=Math.floor((360-(degrees%360))/arcd);
+
+document.getElementById("num").innerText="Numéro : "+(index+1);
+document.getElementById("rule").innerText=rules[index];
+
+}
+
+}
+
+requestAnimationFrame(animate);
+
+}
+
+</script>
+
+</body>
+</html>
